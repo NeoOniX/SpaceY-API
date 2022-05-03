@@ -1,24 +1,19 @@
 // Require
 const express = require('express');
 const minify = require('express-minify');
-const session = require('express-session');
 const compression = require('compression');
 const cors = require('cors');
-const passport = require('passport');
 const { join } = require('path');
 const config = require('../config');
-const { Database, JWT, User, Booking, Offer } = require('./utils');
+const { Database, User, Booking, Offer } = require('./utils');
 
 Database.get(config.database)
 .then(db => {
     User.setDatabase(db);
-    User.database, Booking.database, Offer.database = db;
+    Booking.setDatabase(db);
+    Offer.setDatabase(db);
     
     const app = express();
-    
-    // Passport setup
-    JWT.use(passport, config.jwt);
-    JWT.parse(passport);
     
     // Middlewares
     app
@@ -28,18 +23,10 @@ Database.get(config.database)
     .use(express.urlencoded({ extended: true }))
     .use(compression())
     .use(express.static(join(__dirname, 'public')))
-    .use(session({
-        saveUninitialized: true,
-        resave: false,
-        name: config.session.name,
-        secret: config.session.secret,
-    }))
-    .use(passport.initialize())
-    .use(passport.session());
     
     // Routes
     app
-    .use(`/api/${config.api.version}/auth`, require('./routes/auth')(passport, config.jwt))
+    .use(`/api/${config.api.version}/auth`, require('./routes/auth'))
     .use(`/api/${config.api.version}/offers`, require('./routes/offers'));
     
     // Server start

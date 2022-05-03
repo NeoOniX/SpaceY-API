@@ -3,6 +3,4 @@ module.exports = {
     Booking: require('./Booking'),
     Offer: require('./Offer'),
     User: require('./User'),
-    JWT: require('./JWT'),
-    BCrypt: require('./BCrypt'),
 }

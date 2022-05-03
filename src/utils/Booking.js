@@ -25,6 +25,18 @@ class Booking {
         });
     }
 
+    static readAll = (query) => {
+        return new Promise((resolve, reject) => {
+            this.database.collection('bookings').find(query).toArray((err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+
     static update = (booking) => {
         return new Promise((resolve, reject) => {
             const filter = {_id : booking._id};
