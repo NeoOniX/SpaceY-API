@@ -1,7 +1,5 @@
 // Require
 const express = require('express');
-const minify = require('express-minify');
-const compression = require('compression');
 const cors = require('cors');
 const { join } = require('path');
 const config = require('../config');
@@ -18,10 +16,8 @@ Database.get(config.database)
     // Middlewares
     app
     .use(cors())
-    .use(minify())
     .use(express.json())
     .use(express.urlencoded({ extended: true }))
-    .use(compression())
     .use(express.static(join(__dirname, 'public')))
     
     // Routes

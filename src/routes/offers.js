@@ -3,12 +3,14 @@ const { ObjectId } = require('mongodb');
 const { User, Offer, Booking } = require('../utils');
 
 router.get('/', (req, res) => {
+    req.query.people_count = parseInt(req.query.people_count)
+
     const filter = {
-        people_max_count: { $gte: req.body.people_count }
+        people_max_count: { $gte: req.query.people_count }
     }
 
-    if (req.body.location) {
-        filter.location = req.body.location;
+    if (req.query.location) {
+        filter.location = req.query.location;
     }
 
     Offer.readAll(filter).then(async offers => {
@@ -20,12 +22,12 @@ router.get('/', (req, res) => {
             let bookings = await Booking.readAll({ offer_id: offer._id });
 
             for (let booking of bookings) {
-                if ((new Date(booking.date_start) >= new Date(req.body.date_start) && new Date(booking.date_start) <= new Date(req.body.date_end)) || (new Date(booking.date_end) >= new Date(req.body.date_end) && new Date(booking.date_end) <= new Date(req.body.date_end))) {
+                if ((new Date(booking.date_start) >= new Date(req.query.date_start) && new Date(booking.date_start) <= new Date(req.query.date_end)) || (new Date(booking.date_end) >= new Date(req.query.date_end) && new Date(booking.date_end) <= new Date(req.query.date_end))) {
                     c += booking.people_count;
                 }
             }
 
-            if (c + req.body.people_count <= offer.people_max_count) {
+            if (c + req.query.people_count <= offer.people_max_count) {
                 r.push({...offer, people_period_count: c});
             }
         }
@@ -37,6 +39,8 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
+    req.query.people_count = parseInt(req.query.people_count);
+
     Offer.read({ _id: ObjectId.createFromHexString(req.params.id) }).then(async offer => {
         if (offer) {
             let c = 0;
@@ -44,14 +48,14 @@ router.get('/:id', (req, res) => {
             let bookings = await Booking.readAll({ offer_id: offer._id });
     
             for (let booking of bookings) {
-                if ((new Date(booking.date_start) >= new Date(req.body.date_start) && new Date(booking.date_start) <= new Date(req.body.date_end)) || (new Date(booking.date_end) >= new Date(req.body.date_end) && new Date(booking.date_end) <= new Date(req.body.date_end))) {
+                if ((new Date(booking.date_start) >= new Date(req.query.date_start) && new Date(booking.date_start) <= new Date(req.query.date_end)) || (new Date(booking.date_end) >= new Date(req.query.date_end) && new Date(booking.date_end) <= new Date(req.query.date_end))) {
                     c += booking.people_count;
                 }
             }
 
-            if (c + req.body.people_count <= offer.people_max_count) {
+            if (c + req.query.people_count <= offer.people_max_count) {
                 res.status(200).json({
-                    offer,
+                    ...offer,
                     people_period_count: c,
                 }).end();
             } else {
@@ -115,6 +119,13 @@ router.post('/:id', (req, res) => {
                         message: 'Offer not found',
                     }).end();
                 }
+            }).catch(error => {
+                console.log(error);
+                res.status(500).json({
+                    success: false,
+                    message: 'Internal Server Error',
+                    error,
+                }).end();
             });
         } else {
             res.status(401).json({
@@ -122,6 +133,13 @@ router.post('/:id', (req, res) => {
                 message: 'Unauthorized',
             }).end();
         }
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+            error,
+        }).end();
     });
 });
 
