@@ -1,5 +1,3 @@
-const ExtractJWT = require('passport-jwt').ExtractJwt;
-
 module.exports = {
     // API
     api : {
@@ -8,15 +6,9 @@ module.exports = {
     },
     // Database
     database: {
-        host: "localhost",
-        port: 3306,
-        user: "root",
-        password: "",
-        database: "test",
-    },
-    // JWT
-    jwt : {
-        secret: "secret",
-        jwtFromRequest: ExtractJWT.fromAuthHeader(),
+        host: "<project>.mongodb.net",
+        user: "username",
+        password: "password",
+        database: "database",
     }
 }
