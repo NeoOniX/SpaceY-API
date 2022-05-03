@@ -28,18 +28,26 @@ router.get('/login', (req, res) => {
             success: user != null,
             user: user,
         }).end();
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({ success: false, message: 'Internal Server Error', error }).end();
     });
 });
 
 router.post('/login', (req, res) => {
-    User.read(req.body).then(user => {
-        res.status(200).json({
-            success: user != null,
-            token: user ? user._id : null,
-        }).end();
-    }).catch(error => {
-        console.log(error);
-    });
+    if (req.body.email && req.body.password) {
+        User.read(req.body).then(user => {
+            res.status(200).json({
+                success: user != null,
+                token: user ? user._id : null,
+            }).end();
+        }).catch(error => {
+            console.log(error);
+            res.status(500).json({ success: false, message: 'Internal Server Error', error }).end();
+        });
+    } else {
+        res.status(400).json({ success: false, message: 'Bad Request' }).end();
+    }
 });
 
 module.exports = router;
