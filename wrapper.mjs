@@ -170,7 +170,7 @@ class Offer {
      * @param {string} date_start Format : YYYY-MM-DD
      * @param {string} date_end Format : YYYY-MM-DD
      * @param {string | null} location
-     * @returns {Array<object>} Array of offers
+     * @returns {Promise<OfferSearchResult>} Array of offers
      */
     static search(people_count,date_start,date_end,location = null){
         return new Promise((resolve, reject) => {
